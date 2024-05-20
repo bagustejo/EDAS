@@ -11,7 +11,7 @@ jenis = ['Benefit', 'Cost', 'Benefit', 'Benefit', 'Benefit', 'Benefit', 'Benefit
 # Data alternatif Matriks Keputusan (X)
 alternatif = [
     
-        [7, 7,  9,  7,  1,  9,  1,  6],
+        [7, 7,  9,  7,  1,  9,  1,  6], 
         [4, 3,  5,  3,  3,  10, 7,  4],
         [5, 5,  7,  4,  9,  2,  6,  1],
         [9, 5,  10, 9,  7,  8,  6,  7],
@@ -34,42 +34,43 @@ alternatif = [
         
 ]
 
-# Buat DataFrame untuk kriteria, bobot, dan tipe
-df_kriteria = pd.DataFrame({
+
+df_kriteria = pd.DataFrame({ #Lib. Pandas untuk membuat sebuah DataFrame baru
     'Kriteria': kriteria,
     'Bobot': bobot,
-    'Tipe': jenis
+    'Tipe': jenis #tipe dari kriteria, yang bisa berupa 'Benefit' atau 'Cost'.
 })
 
-# Tampilkan DataFrame kriteria
+
 print("Data Kriteria, Bobot, dan Tipe:")
 print(df_kriteria)
 
-# Konversi data ke dalam DataFrame
+# memindah nilai alternatif ke DataFrame
 df_alternatif = pd.DataFrame(alternatif, columns=kriteria)
 
-# Tampilkan DataFrame alternatif [MATRIK KEPUTUSAN]
-print("\nMatriks Keputusan (Data Alternatif):")
+
+print("\nNilai data alternatif (x):")
 print(df_alternatif)
 
-# Hitung nilai rata-rata untuk setiap kriteria
+# nilai rata-rata alternatif
 avg_kriteria = df_alternatif.mean()
 
-# Mencetak solusi rata-rata
+
+
 print("Average Solution:")
 print(avg_kriteria)
 
 # Fungsi untuk menghitung PDA (Positive Distance from Average) dan NDA (Negative Distance from Average)
 def calculate_distances(df, avg, jenis):
-    PDA = np.zeros(df.shape)
-    NDA = np.zeros(df.shape)
-    for i, t in enumerate(jenis):
+    PDA = np.zeros(df.shape) #nisialisasi Matriks PDA
+    NDA = np.zeros(df.shape) #nisialisasi Matriks NDA:
+    for i, t in enumerate(jenis): #inumerate
         if t == 'Benefit':
-            PDA[:, i] = np.maximum(0, df.iloc[:, i] - avg[i])
-            NDA[:, i] = np.maximum(0, avg[i] - df.iloc[:, i])
+            PDA[:, i] = np.maximum(0, df.iloc[:, i] - avg[i]) #PDA benefit
+            NDA[:, i] = np.maximum(0, avg[i] - df.iloc[:, i]) #NDA benefit
         else:  # Cost criteria
-            PDA[:, i] = np.maximum(0, avg[i] - df.iloc[:, i])
-            NDA[:, i] = np.maximum(0, df.iloc[:, i] - avg[i])
+            PDA[:, i] = np.maximum(0, avg[i] - df.iloc[:, i]) #PDA cost
+            NDA[:, i] = np.maximum(0, df.iloc[:, i] - avg[i]) #NDA cost
     return PDA, NDA
 
 # Hitung PDA dan NDA
@@ -88,8 +89,8 @@ print("\nNDA (Negative Distance from Average):")
 print(df_NDA)
 
 # Hitung SP dan SN
-SP = (PDA * bobot).sum(axis=1)
-SN = (NDA * bobot).sum(axis=1)
+SP = (PDA * bobot).sum(axis=1) #jarak + nilai alternatif
+SN = (NDA * bobot).sum(axis=1) #jarak - nilai alternatif
 
 # Normalisasi SP dan SN
 NSP = SP / SP.max()
@@ -104,20 +105,20 @@ df_result = pd.DataFrame({
     'NSN': NSN
 })
 
-# Tampilkan hasil
+
 print("Hasil SP (Summed Positive distance) dan SN (Summed Negative distance):")
 print(df_result[['Alternatif', 'SP', 'SN']])
 
 print("\nHasil NSP (Normalized SP) dan NSN (Normalized SN):")
 print(df_result[['Alternatif', 'NSP', 'NSN']])
 
-# Hitung AS (Assessment Score)
+# Hitung AS
 AS = 0.5 * (NSP + NSN)
 
 print("\nHasil AS (Assessment Score):")
 print(df_result[['Alternatif', 'AS']])
 
-# Buat DataFrame untuk hasil akhir
+# FORMAT HASIL
 df_result = pd.DataFrame({
     'Alternatif': ['A' + str(i+1) for i in range(df_alternatif.shape[0])],
     'SP': SP,
@@ -127,11 +128,11 @@ df_result = pd.DataFrame({
     'AS': AS
 })
 
-# Urutkan alternatif berdasarkan AS
+# Sort by AS
 df_result = df_result.sort_values(by='AS', ascending=False)
 
 print(df_result)
 
-# Hasil akhir, alternatif terbaik
+# Hasil (nilai alternatif)
 best_alternative = df_result.iloc[0]['Alternatif']
 print(f"Alternatif terbaik adalah: {best_alternative}")
